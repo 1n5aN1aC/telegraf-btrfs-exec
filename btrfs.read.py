@@ -1,3 +1,5 @@
+# coding=utf8
+
 import subprocess
 import collections
 
@@ -10,6 +12,7 @@ def getPools(excludeList):
      poolsLine  = poolsRAW.split('\n')
      for i in range(len(poolsLine)):
           pool = poolsLine[i].replace('\xe2','').replace('\xe2','').split(' ')[0].strip()
+          pool = pool.replace('└─','')
           if len(pool) > 0:
                pools.append(pool)
      return pools
