@@ -1,3 +1,5 @@
+# coding=utf8
+
 import subprocess
 import collections
 
@@ -6,11 +8,12 @@ DEBUG = 0
 
 def getPools(excludeList):
      pools = []
-     poolsRAW = subprocess.check_output("findmnt -o TARGET --list -nt  btrfs", shell=True)
+     poolsRAW = subprocess.check_output("findmnt -nt btrfs", shell=True)
      poolsLine  = poolsRAW.split('\n')
      for i in range(len(poolsLine)):
-          pool = poolsLine[i].replace('\xe2','').replace('\xe2','').split(' ')[0].strip()
-          if len(pool) > 0:
+          pool = poolsLine[i].split(' ')[0].strip()
+          pool = pool.replace('└─','')
+          if len(pool) > 1:
                pools.append(pool)
      return pools
 
@@ -57,6 +60,14 @@ def getFileSystemUsageMeasurements(pool):
                 measurementLinesSection = measurementLines[j].split(':')
                 metric = measurementLinesSection[0].strip().replace(' ', '_')
                 value = measurementLinesSection[1].strip().split('\t')[0]
+                #if any(k in j for k in ["Multiple_profiles", "Multiple profiles", "statfs"]):
+                #    continue
+                if "Multiple_profiles" in metric:
+                    continue
+                if "Multiple profiles" in metric:
+                    continue
+                if "statfs" in metric:
+                    continue
                 outArray.append("btrfs,command=" + btrfsType + ",type="+ metric +",pool="+ pool +" value="+ value)
         else:
             type = measurementLines[0].replace(':',',').split(',')[0]
